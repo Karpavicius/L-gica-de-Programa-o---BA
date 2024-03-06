@@ -1,0 +1,39 @@
+using System;
+
+class Program {
+  public static void Main (string[] args) {
+    Console.WriteLine ("Temperature converter");
+    float floatTempC = 0;
+    int intTempF = 0;
+
+    convertTemp(floatTempC, intTempF);
+
+  }
+
+  public static void convertTemp(float floatTempC, int intTempF){
+    Console.WriteLine("Enter the temperature in Fahrenheit:");
+    string strTempF = Console.ReadLine();
+    
+    if(!Int32.TryParse(strTempF, out intTempF)){
+      Console.WriteLine("Please enter a number");
+      convertTemp(floatTempC, intTempF);
+      return;
+  }
+    
+    if((intTempF >= 0) && (intTempF <= 200)) {
+      floatTempC = (float)(intTempF - 32) * 5 / 9;
+      string msg = "The temperature  " + intTempF + "F is " + floatTempC + "C";
+      Console.WriteLine(msg);
+      Console.WriteLine("Do u want to continue to convert? Type 'yes' or 'no'");
+      if(Console.ReadLine() == "yes"){
+        convertTemp(floatTempC, intTempF);
+      }else{
+        return;
+      }
+    }else{
+    Console.WriteLine("Impossible to convert. Please type a number between 0 and 200");
+      convertTemp(floatTempC, intTempF);
+      return;
+      }
+  }
+}
