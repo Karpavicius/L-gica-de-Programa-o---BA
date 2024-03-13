@@ -1,0 +1,181 @@
+using System;
+
+class Program{
+  
+  int drawnValue;
+  int previousValue;
+  int sumValue;
+
+  bool firstRound;
+  string txtQuestion;
+  string txtFeedback;
+
+  string strResponse;
+  int response;
+  
+  //Objeto que armazenará o valor random do sorteio
+  Random rnd = new Random();
+
+  public static void Main(){
+    
+      //Objeto para utilizar outras classes 'Program'
+      Program srtValue = new Program();
+
+      //Chamada da função 'Start' para que estabeleça os valores iniciais que serão utilizados no início do programa. Depois é alterado os valores de strings para que haja diferenciação no primeiro turno em relação aos próximos
+      srtValue.Start();
+      
+      Console.WriteLine("In this simulation, you must guess the value drawn from 1 to 20. If you make a mistake, you will have a new attempt, but you must guess the sum of the previous value and the new value drawn.");
+      Console.WriteLine("I win if the sum exceeds 100 and you win if you hit the value before that. Good luck!");
+      Console.WriteLine("Are you ready to get started? (Yes/No)");
+      string startGame = "";
+
+      //Identifica se o input do usuário é 'Yes' ou 'No', caso não seja permanecerá em loop até ser validado
+      while (startGame != "Yes" && startGame != "Yes"){
+        
+          startGame = Console.ReadLine();
+
+          if (startGame == "Yes"){
+              //Chama Sweepstakes(), primeiro método da lógica de sorteio
+              Console.WriteLine("Let's go! First draw...");
+              srtValue.Sweepstakes();
+            }
+            else if (startGame == "No"){
+                //Encerra a aplicação
+                Console.WriteLine("Shutting down...");
+                Environment.Exit(0);
+            }
+            else{
+                Console.WriteLine("Type 'Yes' to start or 'No' to end");
+            }
+        }
+    }
+  
+    public void Start(){
+        //Valores iniciais das variáveis
+      drawnValue = 0;
+      previousValue = 0;
+      sumValue = 0;
+      response = 0;
+
+      firstRound = true;
+      txtQuestion = "What value was drawn?";
+    }
+
+    public void Sweepstakes(){
+
+      //Este método estabelece a sequência Sortear>Somar>Receber palpite do jogador>Analisar>Seguir
+      drawnValue = DrawValue();
+      sumValue = addValue(previousValue, drawnValue);
+       WaitUser();
+    }
+
+    public int DrawValue(){
+        //Sorteia num número >= 1 e <20=
+        int rndValue = rnd.Next(1, 21);
+        return rndValue;
+    }
+
+    public int addValue(int vPrevious, int vDrawn){
+        //Método que soma os parâmetros solicitados: valor sorteado no turno anterior e valor sorteado neste turno
+        int vAdded = vPrevious + vDrawn;
+        return vAdded;
+    }
+
+    public void WaitUser(){
+        //Método que recebe o palpite do jogador e, em seguida, compara com o valor sorteado
+
+        //Chama o método dataValidation que solicita um input do jogador e valida até que seja um valor numérico >= 0 e dentro do valor máximo do turno
+        while (response == 0){
+          response = dataValidation();
+        }
+        //Caso os valores sejam equivalentes, emite o feedback positivo e chama o método Restart()
+        if (response == sumValue){
+            Console.WriteLine("Got it right!");
+            Restart();
+        }
+        //Caso não:
+        else{
+            //Primeiro verificamos se o computador venceu, caso o sumValue seja >= 100, onde chama o método Restart() e aplica return, interrompendo o método nesta linha
+            if (sumValue >= 100){
+                Console.WriteLine("******* Computer victory! *******");
+                Console.WriteLine("Added value reached " + sumValue);
+                Restart();
+                return;
+            }
+            //Caso não...
+            else{
+              //Armaza o valor somado atual no previousValue, pois este será somado com o próximo sorteio
+              previousValue = sumValue;
+              response = 0;
+
+              //Se for o firstRound, o feedback é personalizado, explicando a continuidade do jogo
+              if (firstRound){
+                  //tornamos o bool firstRound como false para alterar o feedback na próxima chamada do método
+                  firstRound = false;
+                  txtFeedback = "Ball out! The number was " + sumValue + ". Let's draw the next number, but now guess what the sum of all the values drawn is.";
+                  txtQuestion = "What is the sum of the drawn values?";
+                }
+                else{
+                  txtFeedback = "Ball out! The number was " + sumValue + ". Next draw...";
+                }
+                //Imprime no console o texto personalizado em relação ao turno
+                Console.WriteLine(txtFeedback);
+                //Retoma o método Sweepstakes() para começar o próximo turno
+
+              Sweepstakes();
+            }
+        }
+    }
+  
+    public int dataValidation(){
+
+      Console.WriteLine("------------*-----------");
+      Console.WriteLine(txtQuestion);
+      strResponse = Console.ReadLine();
+
+      //Verificação se valor é numérico & maior que 0
+      if (!int.TryParse(strResponse, out response) || response <= 0){
+          Console.WriteLine("Attention: Enter a value number greater than 0.");
+          return 0;
+        }
+
+      //Verifica se valor está entre o minimo e máximo esperado
+      int maximumValue = sumValue - drawnValue + 20;
+      int minimumValue = maximumValue - 19;
+
+      if (response > maximumValue || response < minimumValue){
+          Console.WriteLine("Attention: The minimum value is " + minimumValue + ". The maximum value this turn is " + maximumValue);
+          return 0;
+        }
+        //Caso tudo tenha sido falso acima, retorna o valor convertido em int32
+        return Convert.ToInt32(strResponse);
+    }
+  
+    public void Restart(){
+        //Método criado pensando em não reiniciar a aplicação por inteiro, apenas verificando o desejo de continuidade do jogador e retomando Start() e Sweepstakes()
+      Console.WriteLine("Play again? (Yes/No)");
+
+      string startGame = "";
+
+      //Identifica se o input do usuário é 'Yes' ou 'No', caso não seja permanecerá em loop até ser validado
+      while (startGame != "Yes" && startGame != "No"){
+          startGame = Console.ReadLine();
+
+          if (startGame == "Yes"){
+            //Chama Sweepstakes(), primeiro método da lógica de sorteio
+            startGame = "";
+
+            Start();
+            Sweepstakes();
+          }
+            else if (startGame == "No"){
+                //Encerra a aplicação
+                Console.WriteLine("Shutting down...");
+                Environment.Exit(0);
+            }
+            else{
+                Console.WriteLine("Type 'Yes' to restart or 'No' to terminate");
+            }
+        }
+    }
+}
