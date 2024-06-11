@@ -1,0 +1,53 @@
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Random random = new Random();
+        int drawnNumber = random.Next(1, 76);
+        Console.WriteLine("Drawn number: " + drawnNumber);
+
+        int[] card = createCard();
+
+        bool won = checkCard(card, drawnNumber);
+        if (won)
+        {
+            Console.WriteLine("Congratulations! You filled out the entire card.");
+        }
+        else
+        {
+            Console.WriteLine("You haven't filled out the entire card yet. Keep playing!");
+        }
+    }
+
+    static int[] createCard()
+    {
+        int[] card = new int[24];
+        Random random = new Random();
+
+        for (int i = 0; i < 24; i++)
+        {
+            int number;
+            do
+            {
+                number = random.Next(1, 76);
+            } while (Array.IndexOf(card, number) != -1);
+            card[i] = number;
+        }
+
+        return card;
+    }
+
+    static bool checkCard(int[] card, int drawnNumber)
+    {
+        foreach (int number in card)
+        {
+            if (number == drawnNumber)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+}
